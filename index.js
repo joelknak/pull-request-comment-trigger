@@ -98,6 +98,30 @@ async function run() {
       content: reaction
     });
   }
+
+
+  let check = {
+    name: 'task-list-completed',
+    head_sha: pr.head.sha,
+    started_at: startTime,
+    status: 'in_progress',
+    output: {
+      title: (outstandingTasks.total - outstandingTasks.remaining) + ' / ' + outstandingTasks.total + ' tasks completed',
+      summary: outstandingTasks.remaining + ' task' + (outstandingTasks.remaining > 1 ? 's' : '') + ' still to be completed',
+      text: 'We check if any task lists need completing before you can merge this PR'
+    }
+  };
+
+  // all finished?
+  if (outstandingTasks.remaining === 0) {
+    check.status = 'completed';
+    check.conclusion = 'success';
+    check.completed_at = (new Date).toISOString();
+    check.output.summary = 'All tasks have been completed';
+  };
+
+  // send check back to GitHub
+  return context.github.checks.create(context.repo(check));
 }
 
 run().catch(err => {
