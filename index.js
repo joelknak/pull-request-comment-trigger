@@ -26,7 +26,6 @@ async function run() {
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
     let response = await client.pulls.get({
-
       pull_number: context.payload.issue.number,
       owner: context.repo.owner,
       repo: context.repo.repo
@@ -82,7 +81,7 @@ async function run() {
   if (!reaction) {
     return;
   }
-  const startTime = (new Date).toISOString();
+  const startTime = new Date().toISOString();
 
   let check = {
     name: "task-list-completed",
@@ -115,7 +114,10 @@ async function run() {
   }
 
   // send check back to GitHub
-  return client.checks.create(context.repo(check));
+  return client.checks.create({
+    owner: context.repo.owner,
+    repo: context.repo.repo
+  });
 }
 
 run().catch(err => {
