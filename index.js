@@ -18,6 +18,8 @@ async function run() {
   // lookup the pr
   let pr = context.payload.pull_request;
 
+  console.log("Context: " + JSON.stringify(context));
+
   // check if this is an issue rather than pull event
   if (context.event === "issue_comment" && !pr) {
     // if so we need to make sure this is for a PR only
@@ -33,8 +35,7 @@ async function run() {
     pr = response.data;
   }
 
-  console.log("Context: " + JSON.stringify(context));
-  console.log("client: " + JSON.stringify(client));
+  // console.log("client: " + JSON.stringify(client));
 
   let comments = await client.issues.listComments({
     issue_number: pr.number,
