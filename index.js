@@ -69,12 +69,6 @@ async function run() {
 
   const { owner, repo } = context.repo;
 
-  const prefixOnly = core.getInput("prefix_only") === "true";
-  if ((prefixOnly && !body.startsWith(trigger)) || !body.includes(trigger)) {
-    core.setOutput("triggered", "false");
-    return;
-  }
-
   core.setOutput("triggered", "true");
 
   if (!reaction) {
