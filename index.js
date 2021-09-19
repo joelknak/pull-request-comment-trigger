@@ -27,7 +27,7 @@ async function run() {
     // & lookup the PR it's for to continue
     let response = await context.github.pulls.get(
       context.repo({
-        pull_number: context.payload.issue.number
+        pull_number: context.payload.pull_request.number
       })
     );
     pr = response.data;
