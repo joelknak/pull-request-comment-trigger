@@ -23,9 +23,6 @@ async function run() {
   // check if this is an issue rather than pull event
   if (context.event === "issue_comment" && !pr) {
     // if so we need to make sure this is for a PR only
-    if (!context.payload.issue.pull_request) {
-      return;
-    }
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
     let response = await context.github.pulls.get(
