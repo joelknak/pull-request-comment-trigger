@@ -24,7 +24,7 @@ async function run() {
       ? context.payload.comment.body
       : context.payload.pull_request.body;
 
-  if(body.includes("- [ ]")) {
+  if(body && body.includes("- [ ]")) {
     core.setFailed('Some of the tasklist items have not been completed.');
   }
 
