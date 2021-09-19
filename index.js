@@ -33,7 +33,7 @@ async function run() {
     pr = response.data;
   }
 
-  // console.log("Context: " + JSON.stringify(context));
+  console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
   let comments = await client.issues.listComments({
