@@ -25,7 +25,8 @@ async function run() {
     // if so we need to make sure this is for a PR only
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
-    let response = await client.issues.get({
+    let response = await client.pulls.get({
+
       issue_number: context.payload.issue.number,
       owner: context.repo.owner,
       repo: context.repo.repo
@@ -84,7 +85,7 @@ async function run() {
 
   let check = {
     name: "task-list-completed",
-    head_sha: pr.head.sha,
+    head_sha: pr.
     started_at: startTime,
     status: "in_progress",
     output: {
