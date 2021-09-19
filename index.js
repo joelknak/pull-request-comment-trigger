@@ -35,7 +35,11 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
-  let comments = await client.issues.listComments({ issue_number: pr.id , owner: context.payload.repository.owner.login});
+  let comments = await client.issues.listComments({
+    issue_number: pr.id,
+    owner: context.repo.owner,
+    repo: context.repo.repo
+  });
 
   let outstandingTasks = { total: 0, remaining: 0 };
 
