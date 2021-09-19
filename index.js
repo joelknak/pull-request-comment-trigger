@@ -12,6 +12,7 @@ async function run() {
     core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
     return;
   }
+  const client = new GitHub(GITHUB_TOKEN);
 
   // lookup the pr
   let pr = context.payload.pull_request;
@@ -31,9 +32,9 @@ async function run() {
     pr = response.data;
   }
 
-  console.log("Context: " + JSON.stringify(context));
-  console.log("Github: " + JSON.stringify(GitHub));
-  console.log("core: " + JSON.stringify(core));
+  console.log("client: " + JSON.stringify(client));
+  // console.log("Github: " + JSON.stringify(GitHub));
+  // console.log("core: " + JSON.stringify(core));
 
   let comments = await context.github.issues.listComments(
     context.repo({
@@ -82,7 +83,6 @@ async function run() {
     return;
   }
 
-  const client = new GitHub(GITHUB_TOKEN);
   if (context.eventName === "issue_comment") {
     await client.reactions.createForIssueComment({
       owner,
