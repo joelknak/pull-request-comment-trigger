@@ -85,7 +85,7 @@ async function run() {
 
   let check = {
     name: "task-list-completed",
-    head_sha: pr.
+    head_sha: pr.sha.head,
     started_at: startTime,
     status: "in_progress",
     output: {
