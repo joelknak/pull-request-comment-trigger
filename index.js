@@ -2,7 +2,7 @@
 
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
-const checkOutstandingTasks = require('./src/check-outstanding-tasks');
+const checkOutstandingTasks = require("./src/check-outstanding-tasks");
 
 async function run() {
   const trigger = core.getInput("trigger", { required: true });
@@ -36,7 +36,6 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
-
   let comments = await client.issues.listComments({
     issue_number: pr.number,
     owner: context.repo.owner,
@@ -44,6 +43,8 @@ async function run() {
   });
 
   let outstandingTasks = { total: 0, remaining: 0 };
+
+  console.log("Comments: " + JSON.stringify(comments.data));
 
   if (comments.data.length) {
     comments.data.forEach(function(comment) {
