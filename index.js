@@ -35,8 +35,9 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
+
   let comments = await client.issues.listComments({
-    issue_number: pr.id,
+    issue_number: pr.number,
     owner: context.repo.owner,
     repo: context.repo.repo
   });
