@@ -32,11 +32,10 @@ async function run() {
     pr = response.data;
   }
 
+  // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
-  // console.log("Github: " + JSON.stringify(GitHub));
-  // console.log("core: " + JSON.stringify(core));
 
-  let comments = await context.github.issues.listComments(
+  let comments = await client.issues.listComments(
     context.repo({
       per_page: 100,
       issue_number: pr.number
