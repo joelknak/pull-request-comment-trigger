@@ -115,7 +115,7 @@ async function run() {
   }
 
   // send check back to GitHub
-  return context.github.checks.create(context.repo(check));
+  return client.checks.create(context.repo(check));
 }
 
 run().catch(err => {
