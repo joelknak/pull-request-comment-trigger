@@ -54,6 +54,8 @@ async function run() {
     });
   }
 
+  console.log("outstanding: " + JSON.stringify(outstandingTasks));
+
   if (outstandingTasks.remaining > 0) {
     core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
     return;
