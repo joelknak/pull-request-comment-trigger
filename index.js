@@ -21,7 +21,7 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
 
   // check if this is an issue rather than pull event
-  if (context.event === "issue_comment" && !pr) {
+  if (context.eventName === "issue_comment" && !pr) {
     // if so we need to make sure this is for a PR only
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
