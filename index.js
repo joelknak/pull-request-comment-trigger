@@ -13,19 +13,48 @@ async function run() {
     return;
   }
 
+  // lookup the pr
+  let pr = context.payload.pull_request;
+
+  // check if this is an issue rather than pull event
+  if (context.event === "issue_comment" && !pr) {
+    // if so we need to make sure this is for a PR only
+    if (!context.payload.issue.pull_request) {
+      return;
+    }
+    // & lookup the PR it's for to continue
+    let response = await context.github.pulls.get(
+      context.repo({
+        pull_number: context.payload.issue.number
+      })
+    );
+    pr = response.data;
+  }
+
   console.log("Context: " + JSON.stringify(context));
   console.log("Github: " + JSON.stringify(GitHub));
   console.log("core: " + JSON.stringify(core));
 
+  let comments = await context.github.issues.listComments(
+    context.repo({
+      per_page: 100,
+      issue_number: pr.number
+    })
+  );
 
+  let outstandingTasks = { total: 0, remaining: 0 };
 
-  const body =
-    context.eventName === "issue_comment"
-      ? context.payload.comment.body
-      : context.payload.pull_request.body;
+  if (comments.data.length) {
+    comments.data.forEach(function(comment) {
+      let commentOutstandingTasks = checkOutstandingTasks(comment.body);
+      outstandingTasks.total += commentOutstandingTasks.total;
+      outstandingTasks.remaining += commentOutstandingTasks.remaining;
+    });
+  }
 
-  if(body && body.includes("- [ ]")) {
-    core.setFailed('Some of the tasklist items have not been completed.');
+  if (outstandingTasks.remaining > 0) {
+    core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
+    return;
   }
 
   core.setOutput("comment_body", body);
