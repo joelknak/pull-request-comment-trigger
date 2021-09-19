@@ -83,23 +83,6 @@ async function run() {
     return;
   }
 
-  if (context.eventName === "issue_comment") {
-    await client.reactions.createForIssueComment({
-      owner,
-      repo,
-      comment_id: context.payload.comment.id,
-      content: reaction
-    });
-  } else {
-    await client.reactions.createForIssue({
-      owner,
-      repo,
-      issue_number: context.payload.pull_request.number,
-      content: reaction
-    });
-  }
-
-
   let check = {
     name: 'task-list-completed',
     head_sha: pr.head.sha,
