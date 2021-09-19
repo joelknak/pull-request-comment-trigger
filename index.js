@@ -25,7 +25,7 @@ async function run() {
     // if so we need to make sure this is for a PR only
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
-    let response = await context.github.pulls.get(
+    let response = await client.issues.get(
       context.repo({
         pull_number: context.payload.issue.number
       })
