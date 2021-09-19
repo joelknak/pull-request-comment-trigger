@@ -17,10 +17,17 @@ async function run() {
   console.log("Github: " + JSON.stringify(GitHub));
   console.log("core: " + JSON.stringify(core));
 
+
+
   const body =
     context.eventName === "issue_comment"
       ? context.payload.comment.body
       : context.payload.pull_request.body;
+
+  if(body.includes("- [ ]")) {
+    core.setFailed('Some of the tasklist items have not been completed.');
+  }
+
   core.setOutput("comment_body", body);
 
   if (
