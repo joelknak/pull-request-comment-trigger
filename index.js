@@ -48,9 +48,13 @@ async function run() {
 
   if (comments.data.length) {
     comments.data.forEach(function(comment) {
-      let commentOutstandingTasks = checkOutstandingTasks(comment.body);
-      outstandingTasks.total += commentOutstandingTasks.total;
-      outstandingTasks.remaining += commentOutstandingTasks.remaining;
+      if (comment.body.includes("- [ ] ")) {
+        //Won't actually tell us when there's multiple tasks on a comment
+        outstandingTasks.remaining += 1;
+      }
+      // let commentOutstandingTasks = checkOutstandingTasks(comment.body);
+      // outstandingTasks.total += commentOutstandingTasks.total;
+      // outstandingTasks.remaining += commentOutstandingTasks.remaining;
     });
   }
 
