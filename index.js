@@ -13,7 +13,7 @@ async function run() {
     return;
   }
 
-  console.log(JSON.stringify(GitHub));
+  console.log(JSON.stringify("Hello"));
 
   const body =
     context.eventName === "issue_comment"
