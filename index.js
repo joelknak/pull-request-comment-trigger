@@ -58,8 +58,6 @@ async function run() {
     return;
   }
 
-  core.setOutput("comment_body", body);
-
   if (
     context.eventName === "issue_comment" &&
     !context.payload.issue.pull_request
