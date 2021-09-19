@@ -82,6 +82,7 @@ async function run() {
   if (!reaction) {
     return;
   }
+  const startTime = (new Date).toISOString();
 
   let check = {
     name: "task-list-completed",
