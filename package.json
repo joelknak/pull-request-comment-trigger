@@ -21,6 +21,7 @@
   "dependencies": {
     "@actions/core": "^1.2.0",
     "@actions/github": "^1.1.0",
+    "@octokit/webhooks-definitions": "^3.67.3",
     "marked": "^3.0.4",
     "prettier": "^1.19.1",
     "prettier-cli": "^0.1.0"

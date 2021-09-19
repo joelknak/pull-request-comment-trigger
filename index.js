@@ -35,12 +35,7 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
-  let comments = await client.issues.listComments(
-    context.repo({
-      per_page: 100,
-      issue_number: pr.number
-    })
-  );
+  let comments = await client.issues.listComments(pr.id);
 
   let outstandingTasks = { total: 0, remaining: 0 };
 
