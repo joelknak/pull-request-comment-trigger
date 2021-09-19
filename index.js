@@ -2,6 +2,7 @@
 
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
+const checkOutstandingTasks = require('./src/check-outstanding-tasks');
 
 async function run() {
   const trigger = core.getInput("trigger", { required: true });
