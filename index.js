@@ -35,7 +35,7 @@ async function run() {
   // console.log("Context: " + JSON.stringify(context));
   console.log("client: " + JSON.stringify(client));
 
-  let comments = await client.issues.listComments(pr.id);
+  let comments = await client.issues.listComments({ issue_number: pr.id });
 
   let outstandingTasks = { total: 0, remaining: 0 };
 
