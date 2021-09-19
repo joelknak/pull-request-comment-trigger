@@ -26,6 +26,7 @@ async function run() {
     if (!context.payload.issue.pull_request) {
       return;
     }
+    console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
     let response = await context.github.pulls.get(
       context.repo({
