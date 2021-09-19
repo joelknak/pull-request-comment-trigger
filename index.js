@@ -27,7 +27,7 @@ async function run() {
     // & lookup the PR it's for to continue
     let response = await client.pulls.get({
 
-      issue_number: context.payload.issue.number,
+      pull_number: context.payload.issue.number,
       owner: context.repo.owner,
       repo: context.repo.repo
     });
