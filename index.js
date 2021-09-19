@@ -25,11 +25,11 @@ async function run() {
     // if so we need to make sure this is for a PR only
     console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
-    let response = await client.issues.get(
-      context.repo({
-        pull_number: context.payload.issue.number
-      })
-    );
+    let response = await client.issues.get({
+      issue_number: context.payload.issue.number,
+      owner: context.repo.owner,
+      repo: context.repo.repo
+    });
     pr = response.data;
   }
 
@@ -61,7 +61,7 @@ async function run() {
   console.log("outstanding: " + JSON.stringify(outstandingTasks));
 
   if (outstandingTasks.remaining > 0) {
-    core.setFailed('One or more comments still need to be checked.');
+    core.setFailed("One or more comments still need to be checked.");
     return;
   }
 
@@ -83,24 +83,34 @@ async function run() {
   }
 
   let check = {
-    name: 'task-list-completed',
+    name: "task-list-completed",
     head_sha: pr.head.sha,
     started_at: startTime,
-    status: 'in_progress',
+    status: "in_progress",
     output: {
-      title: (outstandingTasks.total - outstandingTasks.remaining) + ' / ' + outstandingTasks.total + ' tasks completed',
-      summary: outstandingTasks.remaining + ' task' + (outstandingTasks.remaining > 1 ? 's' : '') + ' still to be completed',
-      text: 'We check if any task lists need completing before you can merge this PR'
+      title:
+        outstandingTasks.total -
+        outstandingTasks.remaining +
+        " / " +
+        outstandingTasks.total +
+        " tasks completed",
+      summary:
+        outstandingTasks.remaining +
+        " task" +
+        (outstandingTasks.remaining > 1 ? "s" : "") +
+        " still to be completed",
+      text:
+        "We check if any task lists need completing before you can merge this PR"
     }
   };
 
   // all finished?
   if (outstandingTasks.remaining === 0) {
-    check.status = 'completed';
-    check.conclusion = 'success';
-    check.completed_at = (new Date).toISOString();
-    check.output.summary = 'All tasks have been completed';
-  };
+    check.status = "completed";
+    check.conclusion = "success";
+    check.completed_at = new Date().toISOString();
+    check.output.summary = "All tasks have been completed";
+  }
 
   // send check back to GitHub
   return context.github.checks.create(context.repo(check));
