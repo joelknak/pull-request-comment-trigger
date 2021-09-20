@@ -60,10 +60,10 @@ async function run() {
 
   // console.log("outstanding: " + JSON.stringify(outstandingTasks));
 
-  if (outstandingTasks.remaining > 0) {
-    core.setFailed("One or more comments still need to be checked.");
-    return;
-  }
+  // if (outstandingTasks.remaining > 0) {
+    // core.setFailed("One or more comments still need to be checked.");
+    // return;
+  // }
 
   if (
     context.eventName === "issue_comment" &&
