@@ -20,15 +20,17 @@ async function getPR(context, client) {
 async function run() {
   const { GITHUB_TOKEN } = process.env;
   const client = new GitHub(GITHUB_TOKEN);
+  const ownerRepo = {
+    owner: context.repo.owner,
+    repo: context.repo.repo
+  };
 
   const pr = await getPR(context, client);
 
   let comments = await client.issues.listComments({
-    issue_number: pr.number,
-    owner: context.repo.owner,
-    repo: context.repo.repo
+    ...ownerRepo,
+    issue_number: pr.number
   });
-
 
   let outstandingTaskExists = false;
 
@@ -40,10 +42,6 @@ async function run() {
     });
   }
 
-  const { owner, repo } = context.repo;
-
-  core.setOutput("triggered", "true");
-
   const startTime = new Date().toISOString();
 
   let check = {
@@ -53,17 +51,15 @@ async function run() {
     status: "completed",
     conclusion: "action_required",
     output: {
-      title:
-      "One or more tasks need to be checked off",
+      title: "One or more tasks need to be checked off",
       summary:
-      "Please check the comments in the PR for any tasks that have not been checked off",
+        "Please check the comments in the PR for any tasks that have not been checked off",
       text:
         "We check if any task lists need completing before you can merge this PR"
     }
   };
 
-  // all finished?
-  if (outstandingTaskExists) {
+  if (!outstandingTaskExists) {
     check.status = "completed";
     check.conclusion = "success";
     check.completed_at = new Date().toISOString();
@@ -72,8 +68,7 @@ async function run() {
 
   // send check back to GitHub
   return client.checks.create({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...ownerRepo,
     ...check
   });
 }
