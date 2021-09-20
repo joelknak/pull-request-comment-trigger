@@ -3,9 +3,9 @@
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
 
-const knakWorkflowTitle = "# Knak Workflow";
-const authorWorkflowTitle = "## Author Workflow";
-const reviewerWorkflowTitle = "## Reviewer Workflow";
+const knakWorkflowTitle = "# Knak Workflow  ";
+const authorWorkflowTitle = "## Author Workflow  ";
+const reviewerWorkflowTitle = "## Reviewer Workflow  ";
 
 const uncheckedCheckbox = "- [ ] ";
 
