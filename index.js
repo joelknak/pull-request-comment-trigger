@@ -116,7 +116,8 @@ async function run() {
   // send check back to GitHub
   return client.checks.create({
     owner: context.repo.owner,
-    repo: context.repo.repo
+    repo: context.repo.repo,
+    ...check
   });
 }
 
