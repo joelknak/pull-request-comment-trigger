@@ -84,7 +84,7 @@ async function run() {
   const startTime = new Date().toISOString();
 
   let check = {
-    name: "task-list-completed",
+    name: "knak-workflow",
     head_sha: pr.head.sha,
     started_at: startTime,
     status: "in_progress",
