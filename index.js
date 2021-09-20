@@ -51,9 +51,10 @@ async function run() {
   let comment = { body: knakWorkflowTitle + "\n Hello2" };
 
   if (workflowComment) {
+    console.log(JSON.stringify(workflowComment));
     await client.issues.updateComment({
       ...ownerRepo,
-      comment_id: workflowComment.number,
+      comment_id: workflowComment.id,
       ...comment
     });
   } else {
