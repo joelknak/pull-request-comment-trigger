@@ -2,7 +2,6 @@
 
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
-const checkOutstandingTasks = require("./src/check-outstanding-tasks");
 
 async function getPR(context, client) {
   let pr = context.payload.pull_request;
@@ -30,7 +29,6 @@ async function run() {
     repo: context.repo.repo
   });
 
-  let outstandingTasks = { total: 0, remaining: 0 };
 
   let outstandingTaskExists = false;
 
@@ -65,7 +63,7 @@ async function run() {
   };
 
   // all finished?
-  if (outstandingTasks.remaining === 0) {
+  if (outstandingTaskExists) {
     check.status = "completed";
     check.conclusion = "success";
     check.completed_at = new Date().toISOString();
@@ -85,6 +83,8 @@ run().catch(err => {
   core.setFailed("Unexpected error");
 });
 
+// let outstandingTasks = { total: 0, remaining: 0 };
+// const checkOutstandingTasks = require("./src/check-outstanding-tasks");
 // const reaction = core.getInput("reaction");
 // if (reaction && !GITHUB_TOKEN) {
 //   core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
