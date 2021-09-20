@@ -23,7 +23,7 @@ async function run() {
   // check if this is an issue rather than pull event
   if (context.eventName === "issue_comment" && !pr) {
     // if so we need to make sure this is for a PR only
-    console.log("Issue: " + JSON.stringify(context.payload.issue));
+    // console.log("Issue: " + JSON.stringify(context.payload.issue));
     // & lookup the PR it's for to continue
     let response = await client.pulls.get({
       pull_number: context.payload.issue.number,
@@ -34,7 +34,7 @@ async function run() {
   }
 
   // console.log("client: " + JSON.stringify(client));
-  console.log("PR: " + JSON.stringify(pr));
+  // console.log("PR: " + JSON.stringify(pr));
 
   let comments = await client.issues.listComments({
     issue_number: pr.number,
@@ -44,7 +44,7 @@ async function run() {
 
   let outstandingTasks = { total: 0, remaining: 0 };
 
-  console.log("Comments: " + JSON.stringify(comments.data));
+  // console.log("Comments: " + JSON.stringify(comments.data));
 
   if (comments.data.length) {
     comments.data.forEach(function(comment) {
@@ -58,7 +58,7 @@ async function run() {
     });
   }
 
-  console.log("outstanding: " + JSON.stringify(outstandingTasks));
+  // console.log("outstanding: " + JSON.stringify(outstandingTasks));
 
   if (outstandingTasks.remaining > 0) {
     core.setFailed("One or more comments still need to be checked.");
