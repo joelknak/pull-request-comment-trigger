@@ -46,9 +46,6 @@ async function run() {
 
   core.setOutput("triggered", "true");
 
-  if (!reaction) {
-    return;
-  }
   const startTime = new Date().toISOString();
 
   let check = {
