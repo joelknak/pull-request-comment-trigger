@@ -3,7 +3,11 @@
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
 
-const knakWorkflowTitle = "### Knak Workflow";
+const knakWorkflowTitle = "# Knak Workflow";
+const authorWorkflowTitle = "## Author Workflow";
+const reviewerWorkflowTitle = "## Reviewer Workflow";
+
+const uncheckedCheckbox = "- [ ] ";
 
 const qaNeededTask =
   "I am sure that there is no possibility of a regression in this code (Otherwise add label `qa-needed`)";
@@ -58,7 +62,7 @@ async function run() {
 
   if (comments.data.length) {
     comments.data.forEach(comment => {
-      if (comment.body.includes("- [ ] ")) {
+      if (comment.body.includes(uncheckedCheckbox)) {
         outstandingTaskExists = true;
       }
     });
@@ -67,7 +71,19 @@ async function run() {
     );
   }
 
-  let comment = { body: knakWorkflowTitle + "\n Hello2" };
+  const authorWorflowTasksBody = authorTasks.map(
+    authorTask => uncheckedCheckbox + authorTask + "\n"
+  );
+  const reviewerWorflowTasksBody = reviewerTasks.map(
+    reviewerTask => uncheckedCheckbox + reviewerTask + "\n"
+  );
+  let comment = {
+    body: `${knakWorkflowTitle}
+        ${authorWorkflowTitle}
+        ${authorWorflowTasksBody}
+        ${reviewerWorkflowTitle}
+        ${reviewerWorflowTasksBody}`
+  };
 
   if (workflowComment) {
     console.log(JSON.stringify(workflowComment));
