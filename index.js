@@ -4,27 +4,10 @@ const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
 const checkOutstandingTasks = require("./src/check-outstanding-tasks");
 
-async function run() {
-  const trigger = core.getInput("trigger", { required: true });
-
-  const reaction = core.getInput("reaction");
-  const { GITHUB_TOKEN } = process.env;
-  if (reaction && !GITHUB_TOKEN) {
-    core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
-    return;
-  }
-  const client = new GitHub(GITHUB_TOKEN);
-
-  // lookup the pr
+async function getPR(context, client) {
   let pr = context.payload.pull_request;
 
-  // console.log("Context: " + JSON.stringify(context));
-
-  // check if this is an issue rather than pull event
   if (context.eventName === "issue_comment" && !pr) {
-    // if so we need to make sure this is for a PR only
-    // console.log("Issue: " + JSON.stringify(context.payload.issue));
-    // & lookup the PR it's for to continue
     let response = await client.pulls.get({
       pull_number: context.payload.issue.number,
       owner: context.repo.owner,
@@ -32,9 +15,14 @@ async function run() {
     });
     pr = response.data;
   }
+  return pr;
+}
 
-  // console.log("client: " + JSON.stringify(client));
-  // console.log("PR: " + JSON.stringify(pr));
+async function run() {
+  const { GITHUB_TOKEN } = process.env;
+  const client = new GitHub(GITHUB_TOKEN);
+
+  const pr = await getPR(context, client);
 
   let comments = await client.issues.listComments({
     issue_number: pr.number,
@@ -44,34 +32,14 @@ async function run() {
 
   let outstandingTasks = { total: 0, remaining: 0 };
 
-  // console.log("Comments: " + JSON.stringify(comments.data));
+  let outstandingTaskExists = false;
 
   if (comments.data.length) {
     comments.data.forEach(function(comment) {
       if (comment.body.includes("- [ ] ")) {
-        //Won't actually tell us when there's multiple tasks on a comment
-        outstandingTasks.remaining += 1;
+        outstandingTaskExists = true;
       }
-      // let commentOutstandingTasks = checkOutstandingTasks(comment.body);
-      // outstandingTasks.total += commentOutstandingTasks.total;
-      // outstandingTasks.remaining += commentOutstandingTasks.remaining;
     });
-  }
-
-  // console.log("outstanding: " + JSON.stringify(outstandingTasks));
-
-  // if (outstandingTasks.remaining > 0) {
-    // core.setFailed("One or more comments still need to be checked.");
-    // return;
-  // }
-
-  if (
-    context.eventName === "issue_comment" &&
-    !context.payload.issue.pull_request
-  ) {
-    // not a pull-request comment, aborting
-    core.setOutput("triggered", "false");
-    return;
   }
 
   const { owner, repo } = context.repo;
@@ -91,16 +59,9 @@ async function run() {
     conclusion: "action_required",
     output: {
       title:
-        outstandingTasks.total -
-        outstandingTasks.remaining +
-        " / " +
-        outstandingTasks.total +
-        " tasks completed",
+      "One or more tasks need to be checked off",
       summary:
-        outstandingTasks.remaining +
-        " task" +
-        (outstandingTasks.remaining > 1 ? "s" : "") +
-        " still to be completed",
+      "Please check the comments in the PR for any tasks that have not been checked off"
       text:
         "We check if any task lists need completing before you can merge this PR"
     }
@@ -126,3 +87,27 @@ run().catch(err => {
   console.error(err);
   core.setFailed("Unexpected error");
 });
+
+// const reaction = core.getInput("reaction");
+// if (reaction && !GITHUB_TOKEN) {
+//   core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
+//   return;
+// }
+
+// const trigger = core.getInput("trigger", { required: true });
+
+// console.log("outstanding: " + JSON.stringify(outstandingTasks));
+
+// if (outstandingTasks.remaining > 0) {
+// core.setFailed("One or more comments still need to be checked.");
+// return;
+// }
+
+// if (
+//   context.eventName === "issue_comment" &&
+//   !context.payload.issue.pull_request
+// ) {
+//   // not a pull-request comment, aborting
+//   core.setOutput("triggered", "false");
+//   return;
+// }
