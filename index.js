@@ -3,6 +3,8 @@
 const core = require("@actions/core");
 const { context, GitHub } = require("@actions/github");
 
+const knakWorkflowTitle = "### Knak Workflow";
+
 async function getPR(context, client) {
   let pr = context.payload.pull_request;
 
@@ -33,12 +35,32 @@ async function run() {
   });
 
   let outstandingTaskExists = false;
+  let workflowComment = null;
 
   if (comments.data.length) {
-    comments.data.forEach(function(comment) {
+    comments.data.forEach(comment => {
       if (comment.body.includes("- [ ] ")) {
         outstandingTaskExists = true;
       }
+    });
+    workflowComment = comments.data.find(comment =>
+      comment.body.startsWith(knakWorkflowTitle)
+    );
+  }
+
+  let comment = { body: knakWorkflowTitle + "\n Hello" };
+
+  if (workflowComment) {
+    await client.issues.updateComment({
+      ...ownerRepo,
+      comment_id: workflowComment.number,
+      ...comment
+    });
+  } else {
+    await client.issues.createComment({
+      ...ownerRepo,
+      issue_number: pr.number,
+      ...comment
     });
   }
 
