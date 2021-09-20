@@ -61,7 +61,7 @@ async function run() {
       title:
       "One or more tasks need to be checked off",
       summary:
-      "Please check the comments in the PR for any tasks that have not been checked off"
+      "Please check the comments in the PR for any tasks that have not been checked off",
       text:
         "We check if any task lists need completing before you can merge this PR"
     }
