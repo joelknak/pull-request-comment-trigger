@@ -48,7 +48,7 @@ async function run() {
     );
   }
 
-  let comment = { body: knakWorkflowTitle + "\n Hello" };
+  let comment = { body: knakWorkflowTitle + "\n Hello2" };
 
   if (workflowComment) {
     await client.issues.updateComment({
