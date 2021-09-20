@@ -5,6 +5,9 @@ const { context, GitHub } = require("@actions/github");
 
 const knakWorkflowTitle = "### Knak Workflow";
 
+const qaNeededTask =
+  "I am sure that there is no possibility of a regression in this code (Otherwise add label `qa-needed`)";
+
 async function getPR(context, client) {
   let pr = context.payload.pull_request;
 
@@ -27,12 +30,28 @@ async function run() {
     repo: context.repo.repo
   };
 
+  const authorTasks = [];
+  const reviewerTasks = [];
+
   const pr = await getPR(context, client);
 
-  let comments = await client.issues.listComments({
+  const comments = await client.issues.listComments({
     ...ownerRepo,
     issue_number: pr.number
   });
+
+  const labels = await client.issues.listLabelsOnIssue({
+    ...ownerRepo,
+    issue_number: pr.number
+  });
+
+  const qaNeededLabelApplied = !!labels.data.find(
+    label => label.name === "qa-needed"
+  );
+  if (!qaNeededLabelApplied) {
+    authorTasks.push(qaNeededTask);
+    reviewerTasks.push(qaNeededTask);
+  }
 
   let outstandingTaskExists = false;
   let workflowComment = null;
