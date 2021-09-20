@@ -87,7 +87,8 @@ async function run() {
     name: "knak-workflow",
     head_sha: pr.head.sha,
     started_at: startTime,
-    status: "in_progress",
+    status: "completed",
+    conclusion: "action_required",
     output: {
       title:
         outstandingTasks.total -
