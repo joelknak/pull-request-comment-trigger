@@ -89,21 +89,14 @@ function createTask(name, description) {
   };
 }
 
-function findTask(taskList, description) {
-  return taskList.find(task => task.description === description);
+function findTask(taskList, name) {
+  return taskList.find(task => task.name === name);
 }
 
-function markVisible(taskList, description) {
-  const task = findTask(taskList, description);
+function markVisible(taskList, name) {
+  const task = findTask(taskList, name);
   if (task) {
     task.isVisible = true;
-  }
-}
-
-function markChecked(taskList, description) {
-  const task = findTask(taskList, description);
-  if (task) {
-    task.isChecked = true;
   }
 }
 
@@ -167,10 +160,10 @@ async function run() {
 
   const qaNeededLabelApplied = labelIsApplied(labels, "qa-needed");
   if (!qaNeededLabelApplied) {
-    console.log("authorTasks: " + JSON.stringify(authorTasks));
-    console.log("reviewerTasks: " + JSON.stringify(reviewerTasks));
     markVisible(authorTasks, qaNeededTaskName);
     markVisible(reviewerTasks, qaNeededTaskName);
+    console.log("authorTasks: " + JSON.stringify(authorTasks));
+    console.log("reviewerTasks: " + JSON.stringify(reviewerTasks));
   }
 
   const outstandingTaskExists = getOutstandingTaskExists(comments);
