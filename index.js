@@ -16,7 +16,10 @@ const qaNeededTaskDescription =
 
 function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
   const startIndex = workflowComment.body.indexOf(startTitle);
-  const endIndex = workflowComment.body.indexOf(endTitle);
+  let endIndex = workflowComment.body.length;
+  if (endTitle) {
+    endIndex = workflowComment.body.indexOf(endTitle);
+  }
   if (startIndex < 0 || endIndex < 0) {
     return;
   }
@@ -44,7 +47,7 @@ function setCheckedTaskCurrentState(
   reviewerTasks,
   workflowComment
 ) {
-  if (!workflowComment) {
+  if (!workflowComment || !workflowComment.body) {
     return;
   }
   setTaskNamesChecked(
