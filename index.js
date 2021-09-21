@@ -8,9 +8,58 @@ const authorWorkflowTitle = "## Author Workflow";
 const reviewerWorkflowTitle = "## Reviewer Workflow";
 
 const uncheckedCheckbox = "- [ ] ";
+const checkedCheckbox = "- [x] ";
 
-const qaNeededTask =
+const qaNeededTaskName = "qa-task";
+const qaNeededTaskDescription =
   "I am sure that there is no possibility of a regression in this code (Otherwise add label `qa-needed`)";
+
+function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
+  const startIndex = workflowComment.body.indexOf(startTitle);
+  const endIndex = workflowComment.body.indexOf(endTitle);
+  if (startIndex < 0 || endIndex < 0) {
+    return;
+  }
+  const taskLines = workflowComment.body
+    .substring(startIndex + startTitle.length, endIndex)
+    .split("\n");
+
+  const regexp = /(- \[[ |x]]).*\[(.*)]$/g;
+  taskLines.forEach(taskLine => {
+    const captureGroups = [...taskLine.matchAll(regexp)][0];
+    if (captureGroups.length !== 3) {
+      return;
+    }
+    const checkedStatus = captureGroups[1];
+    const taskName = captureGroups[2];
+    const task = tasks.find(task => task.name === taskName);
+    if (task) {
+      task.isChecked = checkedStatus === checkedCheckbox;
+    }
+  });
+}
+
+function setCheckedTaskCurrentState(
+  authorTasks,
+  reviewerTasks,
+  workflowComment
+) {
+  if (!workflowComment) {
+    return;
+  }
+  setTaskNamesChecked(
+    authorTasks,
+    authorWorkflowTitle,
+    reviewerWorkflowTitle,
+    workflowComment
+  );
+  setTaskNamesChecked(
+    reviewerTasks,
+    reviewerWorkflowTitle,
+    null,
+    workflowComment
+  );
+}
 
 async function getPR(context, client) {
   let pr = context.payload.pull_request;
@@ -26,6 +75,66 @@ async function getPR(context, client) {
   return pr;
 }
 
+function createTask(name, description) {
+  return {
+    name,
+    description,
+    isChecked: false,
+    isVisible: false
+  };
+}
+
+function findTask(taskList, description) {
+  return taskList.find(task => task.description === description);
+}
+
+function markVisible(taskList, description) {
+  const task = findTask(taskList, description);
+  if (task) {
+    task.isVisible = true;
+  }
+}
+
+function markChecked(taskList, description) {
+  const task = findTask(taskList, description);
+  if (task) {
+    task.isChecked = true;
+  }
+}
+
+function labelIsApplied(labels, label) {
+  return !!labels.data.find(label => label.name === "qa-needed");
+}
+
+function getOutstandingTaskExists(comments) {
+  if (comments.data.length) {
+    comments.data.forEach(comment => {
+      if (comment.body.includes(uncheckedCheckbox)) {
+        return true;
+      }
+    });
+  }
+  return false;
+}
+
+function getWorkflowComment(comments) {
+  if (comments.data.length) {
+    return comments.data.find(comment =>
+      comment.body.startsWith(knakWorkflowTitle)
+    );
+  }
+  return null;
+}
+
+function renderTasks(tasks) {
+  return tasks
+    .filter(task => task.isVisible)
+    .map(task => {
+      const checkbox = task.isChecked ? checkedCheckbox : uncheckedCheckbox;
+      return `${checkbox}${task.description} [${task.name}]\n`;
+    });
+}
+
 async function run() {
   const { GITHUB_TOKEN } = process.env;
   const client = new GitHub(GITHUB_TOKEN);
@@ -36,47 +145,31 @@ async function run() {
 
   const authorTasks = [];
   const reviewerTasks = [];
+  authorTasks.push(createTask(qaNeededTaskName, qaNeededTaskDescription));
+  reviewerTasks.push(createTask(qaNeededTaskName, qaNeededTaskDescription));
 
   const pr = await getPR(context, client);
-
-  const comments = await client.issues.listComments({
+  const ownerRepoWithPr = {
     ...ownerRepo,
     issue_number: pr.number
-  });
+  };
 
-  const labels = await client.issues.listLabelsOnIssue({
-    ...ownerRepo,
-    issue_number: pr.number
-  });
+  const comments = await client.issues.listComments(ownerRepoWithPr);
+  const labels = await client.issues.listLabelsOnIssue(ownerRepoWithPr);
 
-  const qaNeededLabelApplied = !!labels.data.find(
-    label => label.name === "qa-needed"
-  );
+  const workflowComment = getWorkflowComment(comments);
+  setCheckedTaskCurrentState(authorTasks, reviewerTasks, workflowComment);
+
+  const qaNeededLabelApplied = labelIsApplied(labels, "qa-needed");
   if (!qaNeededLabelApplied) {
-    authorTasks.push(qaNeededTask);
-    reviewerTasks.push(qaNeededTask);
+    markVisible(authorTasks, qaNeededTaskName);
+    markVisible(reviewerTasks, qaNeededTaskName);
   }
 
-  let outstandingTaskExists = false;
-  let workflowComment = null;
+  const outstandingTaskExists = getOutstandingTaskExists(comments);
 
-  if (comments.data.length) {
-    comments.data.forEach(comment => {
-      if (comment.body.includes(uncheckedCheckbox)) {
-        outstandingTaskExists = true;
-      }
-    });
-    workflowComment = comments.data.find(comment =>
-      comment.body.startsWith(knakWorkflowTitle)
-    );
-  }
-
-  const authorWorflowTasksBody = authorTasks.map(
-    authorTask => uncheckedCheckbox + authorTask + "\n"
-  );
-  const reviewerWorflowTasksBody = reviewerTasks.map(
-    reviewerTask => uncheckedCheckbox + reviewerTask + "\n"
-  );
+  const authorWorflowTasksBody = renderTasks(authorTasks);
+  const reviewerWorflowTasksBody = renderTasks(reviewerTasks);
   let comment = {
     body: `${knakWorkflowTitle}
 ${authorWorkflowTitle}
@@ -86,7 +179,6 @@ ${reviewerWorflowTasksBody}`
   };
 
   if (workflowComment) {
-    console.log(JSON.stringify(workflowComment));
     await client.issues.updateComment({
       ...ownerRepo,
       comment_id: workflowComment.id,
@@ -135,29 +227,3 @@ run().catch(err => {
   console.error(err);
   core.setFailed("Unexpected error");
 });
-
-// let outstandingTasks = { total: 0, remaining: 0 };
-// const checkOutstandingTasks = require("./src/check-outstanding-tasks");
-// const reaction = core.getInput("reaction");
-// if (reaction && !GITHUB_TOKEN) {
-//   core.setFailed('If "reaction" is supplied, GITHUB_TOKEN is required');
-//   return;
-// }
-
-// const trigger = core.getInput("trigger", { required: true });
-
-// console.log("outstanding: " + JSON.stringify(outstandingTasks));
-
-// if (outstandingTasks.remaining > 0) {
-// core.setFailed("One or more comments still need to be checked.");
-// return;
-// }
-
-// if (
-//   context.eventName === "issue_comment" &&
-//   !context.payload.issue.pull_request
-// ) {
-//   // not a pull-request comment, aborting
-//   core.setOutput("triggered", "false");
-//   return;
-// }
