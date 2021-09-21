@@ -41,7 +41,7 @@ function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
       console.log(
         `checked: ${taskName}, '${checkedStatus}' '${checkedCheckbox}`
       );
-      task.isChecked = checkedStatus === checkedCheckbox;
+      task.isChecked = checkedStatus.includes('x');
       console.log(`checked: ${task.isChecked}`);
     }
   });
