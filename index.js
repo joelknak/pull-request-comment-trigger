@@ -32,7 +32,7 @@ function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
     console.log(`taskLine: ${taskLine}`);
     const captureGroups = [...taskLine.matchAll(regexp)][0];
     if (!captureGroups || captureGroups.length !== 3) {
-      console.log(`No capture group`);
+      console.log(JSON.stringify(captureGroups));
       return;
     }
     const checkedStatus = captureGroups[1];
@@ -40,9 +40,8 @@ function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
     const task = tasks.find(task => task.name === taskName);
     if (task) {
       console.log(`taskLine2: ${taskLine}`);
-      task.isChecked = checkedStatus.includes('x');
+      task.isChecked = checkedStatus.includes("x");
     } else {
-
       console.log(`No task`);
     }
   });
