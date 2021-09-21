@@ -27,7 +27,7 @@ function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
     .substring(startIndex + startTitle.length, endIndex)
     .split("\n");
 
-  const regexp = /(- \[[ |x]]).*\[(.*)]$/g;
+  const regexp = /(- \[[ |x]]).*\[(.*)]/g;
   taskLines.forEach(taskLine => {
     console.log(`taskLine: ${taskLine}`);
     const captureGroups = [...taskLine.matchAll(regexp)][0];
