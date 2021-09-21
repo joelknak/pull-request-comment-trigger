@@ -167,20 +167,22 @@ async function run() {
 
   const qaNeededLabelApplied = labelIsApplied(labels, "qa-needed");
   if (!qaNeededLabelApplied) {
+    console.log("authorTasks: " + JSON.stringify(authorTasks));
+    console.log("reviewerTasks: " + JSON.stringify(reviewerTasks));
     markVisible(authorTasks, qaNeededTaskName);
     markVisible(reviewerTasks, qaNeededTaskName);
   }
 
   const outstandingTaskExists = getOutstandingTaskExists(comments);
 
-  const authorWorflowTasksBody = renderTasks(authorTasks);
-  const reviewerWorflowTasksBody = renderTasks(reviewerTasks);
+  const authorWorkflowTasksBody = renderTasks(authorTasks);
+  const reviewerWorkflowTasksBody = renderTasks(reviewerTasks);
   let comment = {
     body: `${knakWorkflowTitle}
 ${authorWorkflowTitle}
-${authorWorflowTasksBody}
+${authorWorkflowTasksBody}
 ${reviewerWorkflowTitle}
-${reviewerWorflowTasksBody}`
+${reviewerWorkflowTasksBody}`
   };
 
   if (workflowComment) {
