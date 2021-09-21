@@ -38,11 +38,7 @@ function setTaskNamesChecked(tasks, startTitle, endTitle, workflowComment) {
     const taskName = captureGroups[2];
     const task = tasks.find(task => task.name === taskName);
     if (task) {
-      console.log(
-        `checked: ${taskName}, '${checkedStatus}' '${checkedCheckbox}`
-      );
       task.isChecked = checkedStatus.includes('x');
-      console.log(`checked: ${task.isChecked}`);
     }
   });
 }
